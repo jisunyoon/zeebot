@@ -2,15 +2,40 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { ArrowLeftIcon, ArrowUpIcon } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import ChatList from "@/components/ChatList"
+//import ChatList from "@/components/ChatList"
+import { sendMessage, Message } from "@/lib/api";
+import { useState } from "react";
 
 export default function Chat() {
+    const [messages, setMessages] = useState<Message[]>([]);
+    const [input, setInput] = useState<string>("");
     const navigate = useNavigate();
+    const handleGoBack = () =>{navigate(-1);}
 
-    const handleGoBack = () =>{
-        navigate(-1);
+    const handleSendMessage = async () => {
+        if(!input.trim()) return;
+
+        try{
+            const newMessage: Message = {
+                role: 'user',
+                content: input,
+            }
+            setMessages( prev => [...prev, newMessage]);
+
+            setInput('');
+
+            const aiReply = await sendMessage([...messages, newMessage]);
+            setMessages( prev => [...prev, {
+                role:'assistant',
+                content: aiReply,
+            }])
+            
+        }catch(error){
+            console.error('AI 메시지 전송 실패', error);
+        }
     }
-    
+  
+
     return(
         <div className="h-full flex flex-col gap-4">
             <div className="flex items-center">
@@ -20,15 +45,21 @@ export default function Chat() {
                 <h1 className="m-auto font-bold text-lg">ZeeBot</h1>
             </div>
             <div className="flex-1 overflow-y-auto my-10">
-                <ChatList 
-                />
+                {/* <ChatList 
+                   
+                /> */}
             </div>
             <div className="border border-gray-300 rounded-md p-1 flex items-center gap-2 mt-auto">
                 <Input 
                     className="w-full h-10 border-none shadow-none focus-visible:ring-0 focus-visible:ring-offset-0" 
                     placeholder="메시지를 입력하세요."
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
                 />
-                <Button className="cursor-pointer w-8 h-8 bg-point hover:bg-point/80 cursor-pointer rounded-full shadow-none focus-visible:ring-0 focus-visible:ring-offset-0">
+                <Button 
+                    onClick={handleSendMessage}
+                    className="cursor-pointer w-8 h-8 bg-point hover:bg-point/80 cursor-pointer rounded-full shadow-none focus-visible:ring-0 focus-visible:ring-offset-0" 
+                >
                     <ArrowUpIcon className="!w-6 !h-6 text-primary" />
                 </Button>
             </div>
