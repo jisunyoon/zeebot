@@ -4,6 +4,7 @@ const API_KEY = import.meta.env.VITE_ZEEBOT_API_KEY;
 export interface Message{
     role: 'user' | 'system' | 'assistant';
     content: string;
+    createAt?: string;
 }
 
 export interface ChatResponse{
@@ -27,6 +28,11 @@ export async function sendMessage(message: Message[]): Promise<string>{
             messages: message,
         }),
     })
+
+    if(!response.ok){
+        const errorData = await response.json();
+        throw new Error(errorData.error.message || 'API 요청 실패');
+    }
 
     const data = await response.json();
     return data.choices[0].message.content;

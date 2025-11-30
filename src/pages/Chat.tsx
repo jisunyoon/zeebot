@@ -5,12 +5,14 @@ import { useNavigate } from "react-router-dom";
 //import ChatList from "@/components/ChatList"
 import { sendMessage, Message } from "@/lib/api";
 import { useState } from "react";
+import ChatList from "@/components/ChatList";
 
 export default function Chat() {
     const [messages, setMessages] = useState<Message[]>([]);
     const [input, setInput] = useState<string>("");
     const navigate = useNavigate();
     const handleGoBack = () =>{navigate(-1);}
+
 
     const handleSendMessage = async () => {
         if(!input.trim()) return;
@@ -19,6 +21,7 @@ export default function Chat() {
             const newMessage: Message = {
                 role: 'user',
                 content: input,
+                createAt: new Date().toISOString(),
             }
             setMessages( prev => [...prev, newMessage]);
 
@@ -28,13 +31,30 @@ export default function Chat() {
             setMessages( prev => [...prev, {
                 role:'assistant',
                 content: aiReply,
+                createAt: new Date().toISOString(),
             }])
+ 
             
         }catch(error){
             console.error('AI 메시지 전송 실패', error);
         }
     }
   
+    const enterSendMessage = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if(e.key === 'Enter'){
+            e.preventDefault();
+            handleSendMessage();
+        }
+    };
+
+    const formatTime = (dateString: string) => {
+        const date = new Date(dateString);
+        return date.toLocaleTimeString('ko-KR', { 
+            hour: '2-digit', 
+            minute: '2-digit',
+            hour12: true
+        })
+    }
 
     return(
         <div className="h-full flex flex-col gap-4">
@@ -45,9 +65,19 @@ export default function Chat() {
                 <h1 className="m-auto font-bold text-lg">ZeeBot</h1>
             </div>
             <div className="flex-1 overflow-y-auto my-10">
-                {/* <ChatList 
-                   
-                /> */}
+                <ChatList 
+                    sender="system" 
+                    message="안녕하세요! ZeeBot입니다." 
+                    createdAt={formatTime(new Date().toISOString())} 
+                />
+                {messages.map((message, index) => (
+                    <ChatList 
+                        key={index}
+                        sender={message.role}
+                        message={message.content}
+                        createdAt={formatTime(message.createAt || new Date().toISOString())}
+                    />
+                ))}
             </div>
             <div className="border border-gray-300 rounded-md p-1 flex items-center gap-2 mt-auto">
                 <Input 
@@ -55,6 +85,7 @@ export default function Chat() {
                     placeholder="메시지를 입력하세요."
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
+                    onKeyDown={enterSendMessage}
                 />
                 <Button 
                     onClick={handleSendMessage}

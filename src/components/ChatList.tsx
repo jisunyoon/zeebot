@@ -1,7 +1,7 @@
 import logo from "@/assets/logo.svg";
 
 interface ChatListProps{
-    sender: 'user' | 'system';
+    sender: 'user' | 'system' | 'assistant';
     message: string;
     createdAt: string;
 }
@@ -13,7 +13,7 @@ export default function ChatList({
 }: ChatListProps) {
     return(
         <>
-            {sender === 'system' ? (
+            {sender === 'system'  || sender === 'assistant' ? (
                 <>
                     <div className="flex items-center gap-2">
                         <img src={logo} alt="user" className="w-10 h-10" />
