@@ -19,12 +19,12 @@ export default function ChatList({
                         <img src={logo} alt="user" className="w-10 h-10" />
                         <span className="text-medium font-bold">ZeeBot</span>
                     </div>
-                    <p className="text-sm bg-gray-200 rounded-md rounded-tl-none px-2 py-1 text-primary inline-block mt-2">{message}</p>
+                    <p className="text-sm bg-gray-200 rounded-md rounded-tl-none px-2 py-1 text-primary inline-block mt-2 whitespace-pre-wrap">{message}</p>
                     <p className="text-[11px] text-gray-400 mx-2">{createdAt}</p>
                 </>
             ):(
                 <div className="text-right">
-                    <p className="text-sm bg-primary rounded-md rounded-tr-none px-2 py-1 text-white inline-block mt-2">{message}</p>
+                    <p className="text-sm bg-primary rounded-md rounded-tr-none px-2 py-1 text-white inline-block mt-2 whitespace-pre-wrap">{message}</p>
                     <p className="text-[11px] text-gray-400 mx-2">{createdAt}</p>
                 </div>
             )}

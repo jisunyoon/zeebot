@@ -10,6 +10,7 @@ import ChatList from "@/components/ChatList";
 export default function Chat() {
     const [messages, setMessages] = useState<Message[]>([]);
     const [input, setInput] = useState<string>("");
+    const [isLoading, setIsLoading] = useState<boolean>(false);
     const navigate = useNavigate();
     const handleGoBack = () =>{navigate(-1);}
 
@@ -26,17 +27,21 @@ export default function Chat() {
             setMessages( prev => [...prev, newMessage]);
 
             setInput('');
+            setIsLoading(true);
 
             const aiReply = await sendMessage([...messages, newMessage]);
+            
             setMessages( prev => [...prev, {
                 role:'assistant',
                 content: aiReply,
                 createAt: new Date().toISOString(),
             }])
- 
+            
+            setIsLoading(false);
             
         }catch(error){
             console.error('AI 메시지 전송 실패', error);
+            setIsLoading(false);
         }
     }
   
@@ -74,10 +79,13 @@ export default function Chat() {
                     <ChatList 
                         key={index}
                         sender={message.role}
-                        message={message.content}
+                        message={message.content} 
                         createdAt={formatTime(message.createAt || new Date().toISOString())}
                     />
                 ))}
+                {isLoading && (
+                   <p className="text-sm text-gray-400">작성중...</p>
+                )}
             </div>
             <div className="border border-gray-300 rounded-md p-1 flex items-center gap-2 mt-auto">
                 <Input 
